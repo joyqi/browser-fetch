@@ -1,0 +1,31 @@
+{
+  "name": "browser-fetch",
+  "version": "1.0.0",
+  "description": "Use playwright to fetch website page.",
+  "main": "dist/fetch.js",
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "bin": {
+    "socket-pipe": "./bin/browser-fetch"
+  },
+  "preferGlobal": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joyqi/browser-fetch.git"
+  },
+  "author": "joyqi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joyqi/browser-fetch/issues"
+  },
+  "homepage": "https://github.com/joyqi/browser-fetch#readme",
+  "dependencies": {
+    "@types/optimist": "0.0.29",
+    "optimist": "^0.6.1",
+    "playwright": "^0.12.1"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.31"
+  }
+}

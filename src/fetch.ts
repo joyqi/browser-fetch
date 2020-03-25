@@ -10,21 +10,22 @@ let argv = opt.demand(['u'])
     .argv;
 
 (async () => {
-    let browserType;
-
-    if (argv.browser == 'chromium') {
-        browserType = playwright.chromium;
-    } else if (argv.browser == 'firefox') {
-        browserType = playwright.firefox;
-    } else if (argv.browser == 'webkit') {
-        browserType = playwright.webkit;
-    } else {
-        return;
-    }
+    let browser;
 
     try {
-        let browser = await browserType.launch(),
-            context = await browser.newContext(),
+        if (argv.browser == 'chromium') {
+            browser = await playwright.chromium.launch({
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+        } else if (argv.browser == 'firefox') {
+            browser = await playwright.firefox.launch();
+        } else if (argv.browser == 'webkit') {
+            browser = await playwright.webkit.launch();
+        } else {
+            return;
+        }
+
+        let context = await browser.newContext(),
             page = await context.newPage();
 
         page.setDefaultTimeout(argv.timeout);

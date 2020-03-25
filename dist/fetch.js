@@ -26,21 +26,23 @@ let argv = opt.demand(['u'])
     .default('timeout', 10000)
     .argv;
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    let browserType;
-    if (argv.browser == 'chromium') {
-        browserType = playwright.chromium;
-    }
-    else if (argv.browser == 'firefox') {
-        browserType = playwright.firefox;
-    }
-    else if (argv.browser == 'webkit') {
-        browserType = playwright.webkit;
-    }
-    else {
-        return;
-    }
+    let browser;
     try {
-        let browser = yield browserType.launch(), context = yield browser.newContext(), page = yield context.newPage();
+        if (argv.browser == 'chromium') {
+            browser = yield playwright.chromium.launch({
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+        }
+        else if (argv.browser == 'firefox') {
+            browser = yield playwright.firefox.launch();
+        }
+        else if (argv.browser == 'webkit') {
+            browser = yield playwright.webkit.launch();
+        }
+        else {
+            return;
+        }
+        let context = yield browser.newContext(), page = yield context.newPage();
         page.setDefaultTimeout(argv.timeout);
         yield page.goto(argv.url, {
             waitUntil: "domcontentloaded"

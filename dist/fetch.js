@@ -18,11 +18,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const playwright = __importStar(require("playwright"));
 const opt = __importStar(require("optimist"));
+const fs_1 = require("fs");
 let argv = opt.demand(['u'])
     .alias('u', 'url')
     .alias('d', 'debug')
     .alias('b', 'browser')
     .alias('t', 'timeout')
+    .alias('f', 'file')
     .boolean('d')
     .default('debug', false)
     .default('browser', 'chromium')
@@ -48,7 +50,7 @@ let argv = opt.demand(['u'])
             return;
         }
         let browser = yield browserType.launch(options), context = yield browser.newContext(), page = yield context.newPage();
-        page.setDefaultTimeout(argv.timeout);
+        context.setDefaultTimeout(argv.timeout);
         yield page.goto(argv.url, {
             waitUntil: "domcontentloaded"
         });
@@ -57,7 +59,13 @@ let argv = opt.demand(['u'])
             process.exit(1);
         });
         let html = yield page.content();
-        console.log(html);
+        if (argv.file) {
+            fs_1.writeFileSync(argv.file, html);
+            console.log('Html content has been written to ' + argv.file);
+        }
+        else {
+            console.log(html);
+        }
         yield browser.close();
     }
     catch (e) {

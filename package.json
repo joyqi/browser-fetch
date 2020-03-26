@@ -1,6 +1,6 @@
 {
   "name": "browser-fetch",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Use playwright to fetch website page.",
   "main": "dist/fetch.js",
   "scripts": {

@@ -1,12 +1,14 @@
 import * as playwright from 'playwright';
 import * as opt from 'optimist';
 import { BrowserTypeLaunchOptions } from 'playwright';
+import { writeFileSync } from 'fs';
 
 let argv = opt.demand(['u'])
     .alias('u', 'url')
     .alias('d', 'debug')
     .alias('b', 'browser')
     .alias('t', 'timeout')
+    .alias('f', 'file')
     .boolean('d')
     .default('debug', false)
     .default('browser', 'chromium')
@@ -36,7 +38,7 @@ let argv = opt.demand(['u'])
             context = await browser.newContext(),
             page = await context.newPage();
 
-        page.setDefaultTimeout(argv.timeout);
+        context.setDefaultTimeout(argv.timeout);
 
         await page.goto(argv.url, {
             waitUntil: "domcontentloaded"
@@ -48,7 +50,13 @@ let argv = opt.demand(['u'])
         })
 
         let html = await page.content();
-        console.log(html);
+
+        if (argv.file) {
+            writeFileSync(argv.file, html);
+            console.log('Html content has been written to ' + argv.file);
+        } else {
+            console.log(html);
+        }
 
         await browser.close();
     } catch (e) {

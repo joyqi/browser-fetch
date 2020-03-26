@@ -1,31 +1,39 @@
 import * as playwright from 'playwright';
 import * as opt from 'optimist';
+import { BrowserTypeLaunchOptions } from 'playwright';
 
 let argv = opt.demand(['u'])
     .alias('u', 'url')
+    .alias('d', 'debug')
     .alias('b', 'browser')
     .alias('t', 'timeout')
+    .boolean('d')
+    .default('debug', false)
     .default('browser', 'chromium')
     .default('timeout', 10000)
     .argv;
 
 (async () => {
-    let browser;
+    let options: BrowserTypeLaunchOptions = {}, browserType;
+
+    if (argv.debug) {
+        options.dumpio = true;
+    }
 
     try {
         if (argv.browser == 'chromium') {
-            browser = await playwright.chromium.launch({
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
-            });
+            options.args = ['--no-sandbox', '--disable-setuid-sandbox'];
+            browserType = playwright.chromium;
         } else if (argv.browser == 'firefox') {
-            browser = await playwright.firefox.launch();
+            browserType = playwright.firefox;
         } else if (argv.browser == 'webkit') {
-            browser = await playwright.webkit.launch();
+            browserType = playwright.webkit;
         } else {
             return;
         }
 
-        let context = await browser.newContext(),
+        let browser = await browserType.launch(options),
+            context = await browser.newContext(),
             page = await context.newPage();
 
         page.setDefaultTimeout(argv.timeout);
@@ -35,7 +43,7 @@ let argv = opt.demand(['u'])
         });
 
         page.on('pageerror', (error: Error) => {
-            console.log(error.message);
+            console.error(error.message);
             process.exit(1);
         })
 
@@ -44,7 +52,7 @@ let argv = opt.demand(['u'])
 
         await browser.close();
     } catch (e) {
-        console.log(e.message);
+        console.error(e.message);
         process.exit(1);
     }
     

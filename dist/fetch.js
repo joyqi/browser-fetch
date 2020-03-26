@@ -20,35 +20,40 @@ const playwright = __importStar(require("playwright"));
 const opt = __importStar(require("optimist"));
 let argv = opt.demand(['u'])
     .alias('u', 'url')
+    .alias('d', 'debug')
     .alias('b', 'browser')
     .alias('t', 'timeout')
+    .boolean('d')
+    .default('debug', false)
     .default('browser', 'chromium')
     .default('timeout', 10000)
     .argv;
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    let browser;
+    let options = {}, browserType;
+    if (argv.debug) {
+        options.dumpio = true;
+    }
     try {
         if (argv.browser == 'chromium') {
-            browser = yield playwright.chromium.launch({
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
-            });
+            options.args = ['--no-sandbox', '--disable-setuid-sandbox'];
+            browserType = playwright.chromium;
         }
         else if (argv.browser == 'firefox') {
-            browser = yield playwright.firefox.launch();
+            browserType = playwright.firefox;
         }
         else if (argv.browser == 'webkit') {
-            browser = yield playwright.webkit.launch();
+            browserType = playwright.webkit;
         }
         else {
             return;
         }
-        let context = yield browser.newContext(), page = yield context.newPage();
+        let browser = yield browserType.launch(options), context = yield browser.newContext(), page = yield context.newPage();
         page.setDefaultTimeout(argv.timeout);
         yield page.goto(argv.url, {
             waitUntil: "domcontentloaded"
         });
         page.on('pageerror', (error) => {
-            console.log(error.message);
+            console.error(error.message);
             process.exit(1);
         });
         let html = yield page.content();
@@ -56,7 +61,7 @@ let argv = opt.demand(['u'])
         yield browser.close();
     }
     catch (e) {
-        console.log(e.message);
+        console.error(e.message);
         process.exit(1);
     }
     process.exit(0);
